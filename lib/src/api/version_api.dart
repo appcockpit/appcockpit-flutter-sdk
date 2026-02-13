@@ -1,0 +1,35 @@
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
+
+import '../constants.dart';
+import '../models.dart';
+
+Future<VersionResponse?> fetchVersion(AppInfo info, String apiToken) async {
+  try {
+    final uri = Uri.parse('$apiBaseUrl/v2/versions').replace(
+      queryParameters: {
+        'app_id': info.appId,
+        'app_version': info.appVersion,
+        'platform': info.platform,
+        'environment': info.environment,
+      },
+    );
+
+    final response = await http.get(uri, headers: {
+      'x-api-token': apiToken,
+      'x-client-version': clientVersion,
+      'Content-Type': 'application/json',
+    });
+
+    if (response.statusCode != 200) {
+      return null;
+    }
+
+    return VersionResponse.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
+  } catch (e) {
+    return null;
+  }
+}
