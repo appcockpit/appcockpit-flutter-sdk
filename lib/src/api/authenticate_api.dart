@@ -8,12 +8,13 @@ import '../models.dart';
 Future<AuthenticateResponse?> authenticate(
   AppInfo info,
   String apiToken,
-  String userId,
-) async {
+  String userId, {
+  http.Client? client,
+}) async {
   try {
     final uri = Uri.parse('$apiBaseUrl/v2/authenticate');
 
-    final response = await http.post(
+    final response = await (client?.post ?? http.post)(
       uri,
       headers: {
         'x-api-token': apiToken,

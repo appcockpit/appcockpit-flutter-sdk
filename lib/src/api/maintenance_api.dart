@@ -7,8 +7,9 @@ import '../models.dart';
 
 Future<MaintenanceResponse?> getMaintenanceMode(
   MaintenanceInfo info,
-  String apiToken,
-) async {
+  String apiToken, {
+  http.Client? client,
+}) async {
   try {
     final uri = Uri.parse('$apiBaseUrl/v2/maintenance').replace(
       queryParameters: {
@@ -17,7 +18,7 @@ Future<MaintenanceResponse?> getMaintenanceMode(
       },
     );
 
-    final response = await http.get(uri, headers: {
+    final response = await (client?.get ?? http.get)(uri, headers: {
       'x-api-token': apiToken,
       'x-client-version': clientVersion,
       'Content-Type': 'application/json',

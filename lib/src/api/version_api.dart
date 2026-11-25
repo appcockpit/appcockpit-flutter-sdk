@@ -5,7 +5,11 @@ import 'package:http/http.dart' as http;
 import '../constants.dart';
 import '../models.dart';
 
-Future<VersionResponse?> fetchVersion(AppInfo info, String apiToken) async {
+Future<VersionResponse?> fetchVersion(
+  AppInfo info,
+  String apiToken, {
+  http.Client? client,
+}) async {
   try {
     final uri = Uri.parse('$apiBaseUrl/v2/versions').replace(
       queryParameters: {
@@ -16,7 +20,7 @@ Future<VersionResponse?> fetchVersion(AppInfo info, String apiToken) async {
       },
     );
 
-    final response = await http.get(uri, headers: {
+    final response = await (client?.get ?? http.get)(uri, headers: {
       'x-api-token': apiToken,
       'x-client-version': clientVersion,
       'Content-Type': 'application/json',
