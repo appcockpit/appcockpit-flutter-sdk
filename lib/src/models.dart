@@ -69,21 +69,40 @@ class MaintenanceLink {
 }
 
 class MaintenanceResponse {
+  /// Maintenance is on now: the app shows the maintenance screen.
   final bool active;
   final String? title;
   final String? description;
   final List<MaintenanceLink>? links;
+
+  /// A scheduled window starts soon: the app shows a banner.
+  final bool upcoming;
+
+  /// Start of the scheduled window, if scheduled.
+  final DateTime? startsAt;
+
+  /// End of the window, if set.
+  final DateTime? endsAt;
 
   const MaintenanceResponse({
     required this.active,
     this.title,
     this.description,
     this.links,
+    this.upcoming = false,
+    this.startsAt,
+    this.endsAt,
   });
+
+  static DateTime? _date(Object? v) =>
+      v is String ? DateTime.tryParse(v) : null;
 
   factory MaintenanceResponse.fromJson(Map<String, dynamic> json) {
     return MaintenanceResponse(
-      active: json['active'] as bool,
+      active: json['active'] as bool? ?? false,
+      upcoming: json['upcoming'] as bool? ?? false,
+      startsAt: _date(json['starts_at']),
+      endsAt: _date(json['ends_at']),
       title: json['title'] as String?,
       description: json['description'] as String?,
       links: json['links'] != null

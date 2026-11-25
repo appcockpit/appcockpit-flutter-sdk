@@ -20,3 +20,27 @@ Future<bool> isVersionDismissed(String appId, String version) async {
     return false;
   }
 }
+
+// A dismissed maintenance banner stays hidden for that window only: a new or
+// moved window (different start time) is announced again.
+String _getDismissedMaintenanceKey(String appId, DateTime startsAt) =>
+    'ac_dismissed_maintenance_${appId}_${startsAt.toUtc().toIso8601String()}';
+
+Future<void> storeDismissedMaintenance(String appId, DateTime startsAt) async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_getDismissedMaintenanceKey(appId, startsAt), true);
+  } catch (e) {
+    // Silently fail
+  }
+}
+
+Future<bool> isMaintenanceDismissed(String appId, DateTime startsAt) async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_getDismissedMaintenanceKey(appId, startsAt)) ??
+        false;
+  } catch (e) {
+    return false;
+  }
+}

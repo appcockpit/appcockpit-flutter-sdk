@@ -3,23 +3,21 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../constants.dart';
+import '../install_id.dart';
 import '../models.dart';
 
 Future<AuthenticateResponse?> authenticate(
   AppInfo info,
   String apiToken,
-  String userId,
-) async {
+  String userId, {
+  http.Client? client,
+}) async {
   try {
     final uri = Uri.parse('$apiBaseUrl/v2/authenticate');
 
-    final response = await http.post(
+    final response = await (client?.post ?? http.post)(
       uri,
-      headers: {
-        'x-api-token': apiToken,
-        'x-client-version': clientVersion,
-        'Content-Type': 'application/json',
-      },
+      headers: await sdkHeaders(apiToken, clientVersion),
       body: jsonEncode({
         'user_id': userId,
         'platform': info.platform,

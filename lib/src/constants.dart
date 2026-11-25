@@ -1,5 +1,5 @@
 const String apiBaseUrl = 'https://api.appcockpit.dev';
-const String clientVersion = '1.0.0';
+const String clientVersion = '1.1.0';
 
 class LocalizedStrings {
   final String updateRequired;

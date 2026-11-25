@@ -111,6 +111,26 @@ MaintenanceWrapper(
 )
 ```
 
+#### Scheduled maintenance
+
+When you schedule maintenance in the dashboard, `MaintenanceWrapper` shows a dismissible banner at the top of the app before it starts (from 24 hours before by default; set in the dashboard), switches to the maintenance screen at the start time and back to the app at the end time. Times are shown in the user's locale and time zone. A dismissed banner stays hidden for that window.
+
+```dart
+MaintenanceWrapper(
+  info: maintenanceInfo,
+  apiToken: 'your-api-token',
+  showBanner: true, // default
+  bannerTheme: const MaintenanceBannerTheme(backgroundColor: Color(0xFF111827)),
+  // Or build your own:
+  // customMaintenanceBanner: (context, maintenanceInfo, onDismiss) => ...,
+  child: const MyApp(),
+)
+```
+
+### Monthly active devices
+
+Appcockpit plans are priced by monthly active devices. The SDK creates a random install ID on first launch (stored in SharedPreferences) and sends it with each request so these can be counted. It isn't derived from the device or linked to your users, and Appcockpit stores only a hash of it.
+
 ### User Authentication Tracking
 
 When `userId` is provided in `AppInfo`, the SDK automatically calls the authenticate endpoint on mount. This is a fire-and-forget operation that does not affect the UI.
