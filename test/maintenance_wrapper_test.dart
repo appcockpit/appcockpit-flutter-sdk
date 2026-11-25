@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:appcockpit/appcockpit.dart';
+import 'package:appcockpit/src/install_id.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -18,14 +19,27 @@ Widget app(http.Client client) => MaterialApp(
       ),
     );
 
+final headers = <Map<String, String>>[];
+
 MockClient respond(Map<String, dynamic> body, {List<Uri>? calls}) =>
     MockClient((req) async {
       calls?.add(req.url);
+      if (calls != null) headers.add(req.headers);
       return http.Response(jsonEncode(body), 200);
     });
 
+/// Lets the install ID lookup, the request and the rebuild run.
+Future<void> settle(WidgetTester tester) async {
+  for (var i = 0; i < 5; i++) {
+    await tester.pump();
+  }
+}
+
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    resetInstallIdCache();
+  });
 
   testWidgets('shows the app when there is no maintenance', (tester) async {
     final calls = <Uri>[];
@@ -36,13 +50,13 @@ void main() {
     expect(calls.single.path, '/v2/maintenance');
     expect(calls.single.queryParameters,
         {'app_id': 'app1', 'environment': 'production'});
+    expect(headers.single['x-install-id'], isNotNull);
   });
 
   testWidgets('shows the maintenance screen while active', (tester) async {
     await tester.pumpWidget(app(respond(
         {'active': true, 'title': 'Down for upgrades', 'description': null})));
-    await tester.pump();
-    await tester.pump();
+    await settle(tester);
     expect(find.text('Down for upgrades'), findsOneWidget);
     await tester.pumpWidget(const SizedBox()); // dispose timers
   });
@@ -59,8 +73,7 @@ void main() {
       'ends_at': starts.add(const Duration(hours: 2)).toIso8601String(),
     };
     await tester.pumpWidget(app(respond(body)));
-    await tester.pump();
-    await tester.pump();
+    await settle(tester);
     expect(find.text('DB upgrade'), findsOneWidget);
     expect(find.textContaining('About 2 hours'), findsOneWidget);
     expect(find.text('My app'), findsOneWidget);
@@ -72,8 +85,7 @@ void main() {
     // Still dismissed after a restart.
     await tester.pumpWidget(const SizedBox());
     await tester.pumpWidget(app(respond(body)));
-    await tester.pump();
-    await tester.pump();
+    await settle(tester);
     expect(find.byType(MaintenanceBanner), findsNothing);
     await tester.pumpWidget(const SizedBox());
   });
@@ -93,8 +105,7 @@ void main() {
         child: const Text('My app'),
       ),
     ));
-    await tester.pump();
-    await tester.pump();
+    await settle(tester);
     expect(find.byType(MaintenanceBanner), findsNothing);
     await tester.pumpWidget(const SizedBox());
   });

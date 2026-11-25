@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../constants.dart';
+import '../install_id.dart';
 import '../models.dart';
 
 Future<MaintenanceResponse?> getMaintenanceMode(
@@ -18,11 +19,7 @@ Future<MaintenanceResponse?> getMaintenanceMode(
       },
     );
 
-    final response = await (client?.get ?? http.get)(uri, headers: {
-      'x-api-token': apiToken,
-      'x-client-version': clientVersion,
-      'Content-Type': 'application/json',
-    });
+    final response = await (client?.get ?? http.get)(uri, headers: await sdkHeaders(apiToken, clientVersion));
 
     if (response.statusCode != 200) {
       return null;

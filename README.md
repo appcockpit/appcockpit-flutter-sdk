@@ -127,6 +127,10 @@ MaintenanceWrapper(
 )
 ```
 
+### Monthly active devices
+
+Appcockpit plans are priced by monthly active devices. The SDK creates a random install ID on first launch (stored in SharedPreferences) and sends it with each request so these can be counted. It isn't derived from the device or linked to your users, and Appcockpit stores only a hash of it.
+
 ### User Authentication Tracking
 
 When `userId` is provided in `AppInfo`, the SDK automatically calls the authenticate endpoint on mount. This is a fire-and-forget operation that does not affect the UI.
